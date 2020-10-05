@@ -30,6 +30,7 @@ public class RecordingProperties {
 	private RecordingLayout recordingLayout;
 	private String customLayout;
 	private String resolution;
+	private String rtmpUrl;
 	private boolean hasAudio;
 	private boolean hasVideo;
 	private long shmSize; // For COMPOSED recording
@@ -44,6 +45,7 @@ public class RecordingProperties {
 		private RecordingLayout recordingLayout;
 		private String customLayout;
 		private String resolution;
+		private String rtmpUrl;
 		private boolean hasAudio = true;
 		private boolean hasVideo = true;
 		private long shmSize = 536870912L;
@@ -52,15 +54,20 @@ public class RecordingProperties {
 		 * Builder for {@link io.openvidu.java.client.RecordingProperties}
 		 */
 		public RecordingProperties build() {
-			if (OutputMode.COMPOSED.equals(this.outputMode) || OutputMode.COMPOSED_QUICK_START.equals(this.outputMode)) {
+			if (OutputMode.COMPOSED.equals(this.outputMode)
+					|| OutputMode.COMPOSED_QUICK_START.equals(this.outputMode)
+					|| OutputMode.COMPOSED_STREAMING.equals(this.outputMode)) {
 				this.recordingLayout = this.recordingLayout != null ? this.recordingLayout : RecordingLayout.BEST_FIT;
 				this.resolution = this.resolution != null ? this.resolution : "1920x1080";
 				if (RecordingLayout.CUSTOM.equals(this.recordingLayout)) {
 					this.customLayout = this.customLayout != null ? this.customLayout : "";
 				}
+				if (OutputMode.COMPOSED_STREAMING.equals(this.outputMode)) {
+					this.rtmpUrl = this.rtmpUrl != null ? this.rtmpUrl : "";
+				}
 			}
 			return new RecordingProperties(this.name, this.outputMode, this.recordingLayout, this.customLayout,
-					this.resolution, this.hasAudio, this.hasVideo, this.shmSize);
+					this.resolution, this.rtmpUrl, this.hasAudio, this.hasVideo, this.shmSize);
 		}
 
 		/**
@@ -87,7 +94,8 @@ public class RecordingProperties {
 		 * have effect if
 		 * {@link io.openvidu.java.client.RecordingProperties.Builder#outputMode(Recording.OutputMode)}
 		 * has been called with value
-		 * {@link io.openvidu.java.client.Recording.OutputMode#COMPOSED} or
+		 * {@link io.openvidu.java.client.Recording.OutputMode#COMPOSED},
+		 * {@link io.openvidu.java.client.Recording.OutputMode#COMPOSED_STREAMING} or
 		 * {@link io.openvidu.java.client.Recording.OutputMode#COMPOSED_QUICK_START}
 		 */
 		public RecordingProperties.Builder recordingLayout(RecordingLayout layout) {
@@ -104,7 +112,8 @@ public class RecordingProperties {
 		 * Will only have effect if
 		 * {@link io.openvidu.java.client.RecordingProperties.Builder#outputMode(Recording.OutputMode)}
 		 * has been called with value
-		 * {@link io.openvidu.java.client.Recording.OutputMode#COMPOSED} or
+		 * {@link io.openvidu.java.client.Recording.OutputMode#COMPOSED},
+		 * {@link io.openvidu.java.client.Recording.OutputMode#COMPOSED_STREAMING} or
 		 * {@link io.openvidu.java.client.Recording.OutputMode#COMPOSED_QUICK_START}.<br>
 		 * See <a href="https://docs.openvidu.io/en/stable/advanced-features/recording#custom-recording-layouts"
 		 * target="_blank">Custom recording layouts</a> to learn more
@@ -121,7 +130,8 @@ public class RecordingProperties {
 		 * Will only have effect if
 		 * {@link io.openvidu.java.client.RecordingProperties.Builder#outputMode(Recording.OutputMode)}
 		 * has been called with value
-		 * {@link io.openvidu.java.client.Recording.OutputMode#COMPOSED} or
+		 * {@link io.openvidu.java.client.Recording.OutputMode#COMPOSED},
+		 * {@link io.openvidu.java.client.Recording.OutputMode#COMPOSED_STREAMING} or
 		 * {@link io.openvidu.java.client.Recording.OutputMode#COMPOSED_QUICK_START}. For
 		 * {@link io.openvidu.java.client.Recording.OutputMode#INDIVIDUAL} all
 		 * individual video files will have the native resolution of the published
@@ -129,6 +139,19 @@ public class RecordingProperties {
 		 */
 		public RecordingProperties.Builder resolution(String resolution) {
 			this.resolution = resolution;
+			return this;
+		}
+
+		/**
+		 * Call this method to specify the RTMP endpoint for recording. Must be an URL string with
+		 * format "rtmp://HOST:PORT/STREAM/KEY".<br>
+		 * Will only have effect if
+		 * {@link io.openvidu.java.client.RecordingProperties.Builder#outputMode(Recording.OutputMode)}
+		 * has been called with value
+		 * {@link io.openvidu.java.client.Recording.OutputMode#COMPOSED_STREAMING}.
+		 */
+		public RecordingProperties.Builder rtmpUrl(String url) {
+			this.rtmpUrl = url;
 			return this;
 		}
 
@@ -163,12 +186,13 @@ public class RecordingProperties {
 	}
 
 	protected RecordingProperties(String name, Recording.OutputMode outputMode, RecordingLayout layout,
-			String customLayout, String resolution, boolean hasAudio, boolean hasVideo, long shmSize) {
+			String customLayout, String resolution, String rtmpUrl, boolean hasAudio, boolean hasVideo, long shmSize) {
 		this.name = name;
 		this.outputMode = outputMode;
 		this.recordingLayout = layout;
 		this.customLayout = customLayout;
 		this.resolution = resolution;
+		this.rtmpUrl = rtmpUrl;
 		this.hasAudio = hasAudio;
 		this.hasVideo = hasVideo;
 		this.shmSize = shmSize;
@@ -200,7 +224,8 @@ public class RecordingProperties {
 	 * Defines the layout to be used in the recording.<br>
 	 * Will only have effect if
 	 * {@link io.openvidu.java.client.RecordingProperties.Builder#outputMode(Recording.OutputMode)}
-	 * has been called with value {@link Recording.OutputMode#COMPOSED} or
+	 * has been called with value {@link Recording.OutputMode#COMPOSED},
+	 * {@link Recording.OutputMode#COMPOSED_STREAMING} or
 	 * {@link io.openvidu.java.client.Recording.OutputMode#COMPOSED_QUICK_START}.<br>
 	 * <br>
 	 * 
@@ -226,7 +251,8 @@ public class RecordingProperties {
 	 * Will only have effect if
 	 * {@link io.openvidu.java.client.RecordingProperties.Builder#outputMode(Recording.OutputMode)}
 	 * has been called with value
-	 * {@link io.openvidu.java.client.Recording.OutputMode#COMPOSED} or
+	 * {@link io.openvidu.java.client.Recording.OutputMode#COMPOSED},
+	 * {@link io.openvidu.java.client.Recording.OutputMode#COMPOSED_STREAMING} or
 	 * {@link io.openvidu.java.client.Recording.OutputMode#COMPOSED_QUICK_START}. For
 	 * {@link io.openvidu.java.client.Recording.OutputMode#INDIVIDUAL} all
 	 * individual video files will have the native resolution of the published
@@ -237,6 +263,17 @@ public class RecordingProperties {
 	 */
 	public String resolution() {
 		return this.resolution;
+	}
+
+	/**
+	 * Defines the RTMP endpoint to stream the recording video onto.<br>
+	 * Will only have effect if
+	 * {@link io.openvidu.java.client.RecordingProperties.Builder#outputMode(Recording.OutputMode)}
+	 * has been called with value
+	 * {@link io.openvidu.java.client.Recording.OutputMode#COMPOSED_STREAMING}.
+	 */
+	public String rtmpUrl() {
+		return this.rtmpUrl;
 	}
 
 	/**

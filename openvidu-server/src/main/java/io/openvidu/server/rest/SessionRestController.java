@@ -18,6 +18,7 @@
 package io.openvidu.server.rest;
 
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -457,6 +458,7 @@ public class SessionRestController {
 		String name;
 		String outputModeString;
 		String resolution;
+		String rtmpUrl;
 		Boolean hasAudio;
 		Boolean hasVideo;
 		String recordingLayoutString;
@@ -467,6 +469,7 @@ public class SessionRestController {
 			name = (String) params.get("name");
 			outputModeString = (String) params.get("outputMode");
 			resolution = (String) params.get("resolution");
+			rtmpUrl = (String) params.get("rtmpUrl");
 			hasAudio = (Boolean) params.get("hasAudio");
 			hasVideo = (Boolean) params.get("hasVideo");
 			recordingLayoutString = (String) params.get("recordingLayout");
@@ -508,6 +511,26 @@ public class SessionRestController {
 					return this.generateErrorResponse("Type error in some parameter", "/api/recordings/start",
 							HttpStatus.BAD_REQUEST);
 				}
+			}
+		}
+		if (OutputMode.COMPOSED_STREAMING.equals(finalOutputMode)) {
+			if (rtmpUrl == null || rtmpUrl.isEmpty()) {
+				return this.generateErrorResponse(
+						"Wrong 'rtmpUrl' parameter. Acceptable values are valid RTMP urls",
+						"/api/recordings/start", HttpStatus.UNPROCESSABLE_ENTITY);
+			}
+			URL url;
+			try {
+				url = new URL(rtmpUrl);
+			} catch (Exception e) {
+				return this.generateErrorResponse(
+						"Wrong 'rtmpUrl' parameter. Acceptable values are valid RTMP urls",
+						"/api/recordings/start", HttpStatus.UNPROCESSABLE_ENTITY);
+			}
+			if (!url.getProtocol().equals("rtmp")) {
+				return this.generateErrorResponse(
+						"Wrong 'rtmpUrl' parameter. Acceptable values are valid RTMP urls",
+						"/api/recordings/start", HttpStatus.UNPROCESSABLE_ENTITY);
 			}
 		}
 		if ((hasAudio != null && hasVideo != null) && !hasAudio && !hasVideo) {
@@ -565,6 +588,9 @@ public class SessionRestController {
 			if (RecordingLayout.CUSTOM.equals(recordingLayout)) {
 				builder.customLayout(
 						customLayout == null ? session.getSessionProperties().defaultCustomLayout() : customLayout);
+			}
+			if (OutputMode.COMPOSED_STREAMING.equals(finalOutputMode)) {
+				builder.rtmpUrl(rtmpUrl);
 			}
 			if (shmSize != null) {
 				if (shmSize < 134217728L) {
