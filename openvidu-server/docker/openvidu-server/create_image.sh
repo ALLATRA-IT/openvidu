@@ -1,9 +1,9 @@
-VERSION=$1
-if [[ ! -z $VERSION ]]; then
-    cp ../../target/openvidu-server-*.jar ./openvidu-server.jar
-    cp ../utils/discover_my_public_ip.sh ./discover_my_public_ip.sh
+IMAGE=$1
+if [[ ! -z $IMAGE ]]; then
+    cp -f ../../target/openvidu-server-*.jar ./openvidu-server.jar
+    cp -f ../utils/discover_my_public_ip.sh ./discover_my_public_ip.sh
 
-    docker build -t openvidu/openvidu-server:$VERSION .
+    docker build --network=host --force-rm -t $IMAGE .
 
     rm ./openvidu-server.jar
     rm ./discover_my_public_ip.sh

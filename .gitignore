@@ -2,6 +2,7 @@
 */target/*
 !openvidu-java-client/target/openvidu-java-client.jar
 
+/.cache/
 /target
 .classpath
 .idea
