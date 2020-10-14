@@ -98,12 +98,7 @@ public class Recording {
 		 * </li>
 		 * </ul>
 		 */
-		COMPOSED_QUICK_START,
-
-		/**
-		 * Record all streams in a grid layout and re-stream them to RTMP endpoint
-		 */
-		COMPOSED_STREAMING;
+		COMPOSED_QUICK_START;
 	}
 
 	private Recording.Status status;

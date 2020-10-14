@@ -512,25 +512,20 @@ public class SessionRestController {
 							HttpStatus.BAD_REQUEST);
 				}
 			}
-		}
-		if (OutputMode.COMPOSED_STREAMING.equals(finalOutputMode)) {
-			if (rtmpUrl == null || rtmpUrl.isEmpty()) {
-				return this.generateErrorResponse(
-						"Wrong 'rtmpUrl' parameter. Acceptable values are valid RTMP urls",
-						"/api/recordings/start", HttpStatus.UNPROCESSABLE_ENTITY);
-			}
-			URL url;
-			try {
-				url = new URL(rtmpUrl);
-			} catch (Exception e) {
-				return this.generateErrorResponse(
-						"Wrong 'rtmpUrl' parameter. Acceptable values are valid RTMP urls",
-						"/api/recordings/start", HttpStatus.UNPROCESSABLE_ENTITY);
-			}
-			if (!url.getProtocol().equals("rtmp")) {
-				return this.generateErrorResponse(
-						"Wrong 'rtmpUrl' parameter. Acceptable values are valid RTMP urls",
-						"/api/recordings/start", HttpStatus.UNPROCESSABLE_ENTITY);
+			if (rtmpUrl != null && !rtmpUrl.isEmpty()) {
+				URL url;
+				try {
+					url = new URL(rtmpUrl);
+				} catch (Exception e) {
+					return this.generateErrorResponse(
+							"Wrong 'rtmpUrl' parameter. Acceptable values are valid RTMP urls",
+							"/api/recordings/start", HttpStatus.UNPROCESSABLE_ENTITY);
+				}
+				if (!url.getProtocol().equals("rtmp")) {
+					return this.generateErrorResponse(
+							"Wrong 'rtmpUrl' parameter. Acceptable values are valid RTMP urls",
+							"/api/recordings/start", HttpStatus.UNPROCESSABLE_ENTITY);
+				}
 			}
 		}
 		if ((hasAudio != null && hasVideo != null) && !hasAudio && !hasVideo) {
@@ -589,7 +584,7 @@ public class SessionRestController {
 				builder.customLayout(
 						customLayout == null ? session.getSessionProperties().defaultCustomLayout() : customLayout);
 			}
-			if (OutputMode.COMPOSED_STREAMING.equals(finalOutputMode)) {
+			if (rtmpUrl != null && !rtmpUrl.isEmpty()) {
 				builder.rtmpUrl(rtmpUrl);
 			}
 			if (shmSize != null) {

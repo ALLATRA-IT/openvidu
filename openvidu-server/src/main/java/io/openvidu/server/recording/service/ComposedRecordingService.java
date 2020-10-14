@@ -151,6 +151,7 @@ public class ComposedRecordingService extends RecordingService {
 		List<String> envs = new ArrayList<>();
 
 		String layoutUrl = this.getLayoutUrl(recording);
+		boolean isRtmpStream = !properties.rtmpUrl().isEmpty();
 
 		envs.add("DEBUG_MODE=" + openviduConfig.isOpenViduRecordingDebug());
 		envs.add("URL=" + layoutUrl);
@@ -161,6 +162,9 @@ public class ComposedRecordingService extends RecordingService {
 		envs.add("VIDEO_NAME=" + properties.name());
 		envs.add("VIDEO_FORMAT=mp4");
 		envs.add("RECORDING_JSON=" + recording.toJson().toString());
+		if (isRtmpStream) {
+			envs.add("RTMP_URL=" + properties.rtmpUrl());
+		}
 
 		log.info(recording.toJson().toString());
 		log.info("Recorder connecting to url {}", layoutUrl);
@@ -186,12 +190,15 @@ public class ComposedRecordingService extends RecordingService {
 
 		this.sessionsContainers.put(session.getSessionId(), containerId);
 
-		try {
-			this.waitForVideoFileNotEmpty(recording);
-		} catch (OpenViduException e) {
-			this.cleanRecordingMaps(recording);
-			throw this.failStartRecording(session, recording,
-					"Couldn't initialize recording container. Error: " + e.getMessage());
+		// TODO: make a check for RTMP stream too
+		if (!isRtmpStream) {
+			try {
+				this.waitForVideoFileNotEmpty(recording);
+			} catch (OpenViduException e) {
+				this.cleanRecordingMaps(recording);
+				throw this.failStartRecording(session, recording,
+						"Couldn't initialize recording container. Error: " + e.getMessage());
+			}
 		}
 
 		return recording;
